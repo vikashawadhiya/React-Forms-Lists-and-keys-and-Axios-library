@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Manager</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <script type="text/babel">
+      let root = document.getElementById("root");
+     
+    const { useState } = React;
+
+    const App = () => {
+      const [tasks, setTasks] = useState([]);
+      const [newTask, setNewTask] = useState({ title: '', isCompleted: false, assignee: '' });
+
+      const fetchTasks = async () => {
+        try {
+          const response = await axios.get('http://localhost:3000/todos');
+          setTasks(response.data);
+        } catch (error) {
+          console.error('Error fetching tasks:', error);
+        }
+      };
+
+      const addTask = async () => {
+        try {
+          const response = await axios.post('http://localhost:3000/todos', newTask);
+          setTasks([...tasks, response.data]);
+          setNewTask({ title: '', isCompleted: false, assignee: '' });
+        } catch (error) {
+          console.error('Error adding task:', error);
+        }
+      };
+
+      const deleteTask = async (id) => {
+        try {
+          await axios.delete(`http://localhost:3000/todos/${id}`);
+          setTasks(tasks.filter(task => task.id !== id));
+        } catch (error) {
+          console.error('Error deleting task:', error);
+        }
+      };
+
+      const updateTask = async (id, updatedTask) => {
+        try {
+          const response = await axios.put(`http://localhost:3000/todos/${id}`, updatedTask);
+          setTasks(tasks.map(task => (task.id === id ? response.data : task)));
+        } catch (error) {
+          console.error('Error updating task:', error);
+        }
+      };
+
+      return (
+        <div>
+          <h1>Task Manager</h1>
+          <div>
+            <label>
+              Title:
+              <input type="text" value={newTask.title} onChange={e => setNewTask({ ...newTask, title: e.target.value })} />
+            </label>
+            <label>
+              Assignee:
+              <input type="text" value={newTask.assignee} onChange={e => setNewTask({ ...newTask, assignee: e.target.value })} />
+            </label>
+            <button onClick={addTask}>Add Task</button>
+          </div>
+          <div>
+            <button onClick={fetchTasks}>Get all tasks</button>
+          </div>
+          <div>
+            <button onClick={() => setTasks(tasks.filter(task => !task.isCompleted))}>Show Incomplete Tasks</button>
+          </div>
+          <ul>
+            {tasks.map(task => (
+              <li key={task.id}>
+                <input
+                  type="checkbox"
+                  checked={task.isCompleted}
+                  onChange={e => updateTask(task.id, { ...task, isCompleted: e.target.checked })}
+                />
+                <span>{task.title} - {task.assignee}</span>
+                <button onClick={() => deleteTask(task.id)}>Delete</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    };
+
+      ReactDOM.createRoot(root).render(<App />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToDo List</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #e0f7fa;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .custom-container {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+      }
+      .custom-heading {
+        color: #00796b;
+        text-align: center;
+      }
+      .custom-input {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #bdbdbd;
+        border-radius: 4px;
+      }
+      .custom-button {
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        background-color: #792a00;
+        color: white;
+        cursor: pointer;
+      }
+      .custom-button:hover {
+        background-color: #004d40;
+      }
+      .custom-list {
+        list-style-type: none;
+        padding: 0;
+      }
+      .custom-todo-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #bdbdbd;
+        border-radius: 4px;
+        background-color: #e0f2f1;
+      }
+      .custom-todo-item span {
+        flex-grow: 1;
+        margin-left: 10px;
+      }
+      .completed {
+        text-decoration: line-through;
+        color: #9e9e9e;
+      }
+      .delete-button {
+        background-color: #e57373;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        color: white;
+        cursor: pointer;
+      }
+      .delete-button:hover {
+        background-color: #d32f2f;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="custom-root" class="custom-container"></div>
+    <script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+    <script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useState } = React;
+
+      function CustomToDoList() {
+        // State to keep track of all todo items
+        const [todos, setTodos] = useState([]);
+        // State to keep track of the current value of the input field
+        const [newTodo, setNewTodo] = useState("");
+
+        // Function to add a new todo item to the list
+        const addTodo = () => {
+          if (newTodo.trim() !== "") {
+            // Add the new todo item to the list
+            setTodos([...todos, { text: newTodo, completed: false }]);
+            // Clear the input field
+            setNewTodo("");
+          }
+        };
+
+        // Function to delete a todo item from the list
+        const deleteTodo = (index) => {
+          // Remove the todo item at the specified index
+          setTodos(todos.filter((_, i) => i !== index));
+        };
+
+        // Function to toggle the completed status of a todo item
+        const toggleComplete = (index) => {
+          // Map over the todos and toggle the completed status of the specified todo item
+          const updatedTodos = todos.map((todo, i) =>
+            i === index ? { ...todo, completed: !todo.completed } : todo
+          );
+          // Update the todos state with the modified list
+          setTodos(updatedTodos);
+        };
+
+        return (
+          <div>
+            <h2 class="custom-heading">ToDo LIST</h2>
+            <input
+              class="custom-input"
+              type="text"
+              value={newTodo}
+              onChange={(e) => setNewTodo(e.target.value)}
+              placeholder="Add a new task"
+            />
+            <button class="custom-button" onClick={addTodo}>Add</button>
+            <ul class="custom-list">
+              {todos.map((todo, index) => (
+                <li key={index} className="custom-todo-item">
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() => toggleComplete(index)}
+                  />
+                  <span className={todo.completed ? "completed" : ""}>{todo.text}</span>
+                  <button className="delete-button" onClick={() => deleteTodo(index)}>
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      }
+
+      // Render the CustomToDoList component to the DOM
+      ReactDOM.render(<CustomToDoList />, document.getElementById("custom-root"));
+    </script>
+  </body>
+</html>
